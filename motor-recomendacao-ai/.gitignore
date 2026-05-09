@@ -1,0 +1,35 @@
+# Variáveis de ambiente
+.env
+
+# Arquivos do sistema
+desktop.ini
+
+# Dados baixados do Kaggle
+data/
+
+# Cache e compilados Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# IDE e editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ambiente virtual
+venv/
+env/
+ENV/
+
+# Testes e coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/

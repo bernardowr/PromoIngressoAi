@@ -1,37 +1,59 @@
 import os
-import kagglehub
 import shutil
+import kagglehub
 from dotenv import load_dotenv
 
-# Isso faz a aplicação ler o arquivo .env que você criou
+# Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
+CAMINHO_RELATIVO_DADOS = '../../data'
+DATASET_MEETUP = 'megelon/meetup'
 
-def baixar_dataset(dataset_handle):
-    # O kagglehub agora encontrará o KAGGLE_API_TOKEN carregado pelo load_dotenv()
-    print(f"Buscando dataset: {dataset_handle}...")
+
+def obter_caminho_diretorio_dados() -> str:
+    """Retorna o caminho absoluto para o diretório de dados, criando-o se necessário."""
+    diretorio_dados = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), CAMINHO_RELATIVO_DADOS))
+    os.makedirs(diretorio_dados, exist_ok=True)
+    return diretorio_dados
+
+
+def baixar_meetup_dataset(dataset_handle: str = DATASET_MEETUP) -> str | None:
+    """Baixa o dataset do Kaggle e copia os arquivos para a pasta local de dados."""
+    print(f"Baixando dataset de eventos: {dataset_handle}...")
 
     try:
-        path_origem = kagglehub.dataset_download(dataset_handle)
-
-        # Caminho absoluto para a pasta /data
-        path_destino = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '../../data'))
-
-        if not os.path.exists(path_destino):
-            os.makedirs(path_destino)
-
-        for arquivo in os.listdir(path_origem):
-            shutil.copy2(os.path.join(path_origem, arquivo),
-                         os.path.join(path_destino, arquivo))
-
-        print(f"Dados atualizados com sucesso em /data")
-        return path_destino
+        caminho_origem = kagglehub.dataset_download(dataset_handle)
     except Exception as e:
-        print(f"Erro na autenticação ou download: {e}")
+        print(f"Erro no download do Kaggle: {e}")
         return None
+
+    diretorio_dados = obter_caminho_diretorio_dados()
+
+    for arquivo in os.listdir(caminho_origem):
+        origem = os.path.join(caminho_origem, arquivo)
+        destino = os.path.join(diretorio_dados, arquivo)
+        shutil.copy2(origem, destino)
+
+    print(f"Dados copiados para {diretorio_dados}")
+    return diretorio_dados
+
+
+def obter_diretorio_dados() -> str | None:
+    """Retorna o caminho do diretório de dados se ele já contiver arquivos ou tenta baixá-los."""
+    diretorio_dados = obter_caminho_diretorio_dados()
+    arquivos = os.listdir(diretorio_dados)
+
+    if arquivos:
+        print(f"Arquivos de dados encontrados em {diretorio_dados}: {arquivos}")
+        return diretorio_dados
+
+    return baixar_meetup_dataset()
 
 
 if __name__ == "__main__":
-    # Teste de carga
-    baixar_dataset("darpan25bajaj/events-datasetfor-collaborative-filtering")
+    caminho_dados = obter_diretorio_dados()
+    if caminho_dados:
+        print(f"Diretório de dados pronto: {caminho_dados}")
+    else:
+        print("Não foi possível preparar o diretório de dados.")
