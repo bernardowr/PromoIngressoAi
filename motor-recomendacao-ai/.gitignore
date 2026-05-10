@@ -1,11 +1,18 @@
 # Variáveis de ambiente
 .env
+# Arquivos de cache do Python
+__pycache__/
+*.py[cod]
 
 # Arquivos do sistema
 desktop.ini
+# Pastas de dados pesados (NÃO subir os CSVs para o GitHub)
+database/
 
 # Dados baixados do Kaggle
 data/
+# Variáveis de ambiente e senhas
+.env
 
 # Cache e compilados Python
 __pycache__/
@@ -21,6 +28,7 @@ __pycache__/
 *.swo
 
 # Ambiente virtual
+# Pastas de ambientes virtuais (caso venha a criar no futuro)
 venv/
 env/
 ENV/

@@ -1,0 +1,15 @@
+# Processamento de Dados e Matemática
+pandas
+numpy
+scipy
+
+# Inteligência Artificial e Machine Learning
+scikit-learn
+
+# Servidor Web e API
+Flask
+Flask-Cors
+
+# Serviços e Variáveis de Ambiente
+kagglehub
+python-dotenv

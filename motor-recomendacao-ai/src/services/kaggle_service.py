@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
-CAMINHO_RELATIVO_DADOS = '../../data'
+CAMINHO_RELATIVO_DADOS = '../../database'
 DATASET_MEETUP = 'megelon/meetup'
 
 
@@ -45,7 +45,8 @@ def obter_diretorio_dados() -> str | None:
     arquivos = os.listdir(diretorio_dados)
 
     if arquivos:
-        print(f"Arquivos de dados encontrados em {diretorio_dados}: {arquivos}")
+        print(
+            f"Arquivos de dados encontrados em {diretorio_dados}: {arquivos}")
         return diretorio_dados
 
     return baixar_meetup_dataset()
