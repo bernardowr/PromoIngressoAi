@@ -347,6 +347,7 @@ def gerar_recomendacao(usuario_id, modelo_knn, df_normalizada, matriz_original):
             str(row['event_id']),
             row['event_name'],
             row['venue_name'] if 'venue_name' in row else None,
+            row['venue.city'] if 'venue.city' in row else None,
             float(row['group_rating']),
             float(row['venue_rating']),
             int(row['yes_rsvp_count'])
@@ -372,6 +373,6 @@ print(f"\nGerando recomendações para o Membro ID: {usuario_teste}")
 recomendacoes = gerar_recomendacao(
     usuario_teste, knn, df_matriz_norm, matriz_usuario_topico)
 
-print("O motor sugere os seguintes Eventos (ID, Nome, Venue, Nota do Grupo, Nota do Local, RSVPs):")
+print("O motor sugere os seguintes Eventos (ID, Nome, Venue, Cidade, Nota do Grupo, Nota do Local, RSVPs):")
 for evento in recomendacoes:
     print(evento)
