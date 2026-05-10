@@ -5,6 +5,8 @@ import os
 import sys
 from pathlib import Path
 
+from flask import Flask, jsonify
+from flask_cors import CORS
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import KMeans
@@ -343,36 +345,49 @@ def gerar_recomendacao(usuario_id, modelo_knn, df_normalizada, matriz_original):
     top_eventos = eventos_ordenados.head(10)
 
     recomendacoes = [
-        (
-            str(row['event_id']),
-            row['event_name'],
-            row['venue_name'] if 'venue_name' in row else None,
-            row['venue.city'] if 'venue.city' in row else None,
-            float(row['group_rating']),
-            float(row['venue_rating']),
-            int(row['yes_rsvp_count'])
-        )
+        {
+            "event_id": str(row['event_id']),
+            "event_name": row['event_name'],
+            "venue_name": row['venue_name'] if 'venue_name' in row else None,
+            "venue_city": row['venue.city'] if 'venue.city' in row else None,
+            "group_rating": float(row['group_rating']),
+            "venue_rating": float(row['venue_rating']),
+            "yes_rsvp_count": int(row['yes_rsvp_count'])
+        }
         for _, row in top_eventos.iterrows()
     ]
 
+    # Os prints agora funcionam como logs no terminal do servidor
+    print(f"\n[LOG] Requisição processada para o usuário {usuario_id}:")
+    print(f"      - Tópicos de interesse diretos: {len(topicos_usuario)}")
     print(
-        f"Usuário {usuario_id} tem {len(topicos_usuario)} tópicos de interesse diretos.")
+        f"      - Tópicos relevantes via vizinhos k-NN: {len(topicos_relevantes)}")
     print(
-        f"Vizinho(s) trouxe(em) {len(topicos_relevantes)} tópicos relevantes.")
-    print(
-        f"Eventos candidatos após filtro de localização: {len(eventos_candidatos)}")
-    print(f"Recomendações finais: {len(recomendacoes)} eventos")
+        f"      - Eventos candidatos após filtros: {len(eventos_candidatos)}")
+    print(f"      - Recomendações retornadas: {len(recomendacoes)}")
+    print("-" * 60)
+
     return recomendacoes
 
 
-# Pegando um usuário aleatório da nossa base de dados como "Cobaia"
-usuario_teste = random.choice(df_matriz_norm.index.tolist())
-print(f"\nGerando recomendações para o Membro ID: {usuario_teste}")
+app = Flask(__name__)
+CORS(app)  # Habilita acesso do React (ou outras origens) à nossa API Flask
 
-# Executa a função e gera a predição
-recomendacoes = gerar_recomendacao(
-    usuario_teste, knn, df_matriz_norm, matriz_usuario_topico)
 
-print("O motor sugere os seguintes Eventos (ID, Nome, Venue, Cidade, Nota do Grupo, Nota do Local, RSVPs):")
-for evento in recomendacoes:
-    print(evento)
+@app.route('/api/recomendacoes/<int:usuario_id>', methods=['GET'])
+def api_recomendacoes(usuario_id):
+    """Endpoint RESTful para retornar as recomendações de um usuário em JSON"""
+    try:
+        recomendacoes = gerar_recomendacao(
+            usuario_id, knn, df_matriz_norm, matriz_usuario_topico)
+        if isinstance(recomendacoes, str):  # Retorno de erro caso o "Usuário não encontrado."
+            return jsonify({"erro": recomendacoes}), 404
+        return jsonify({"usuario_id": usuario_id, "recomendacoes": recomendacoes}), 200
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+
+if __name__ == '__main__':
+    print("\n🚀 Iniciando servidor REST da API de Recomendação na porta 5000...")
+    print("Pode ser acessada em: http://localhost:5000/api/recomendacoes/<ID_DO_USUARIO>")
+    app.run(host='0.0.0.0', port=5000, debug=False)
