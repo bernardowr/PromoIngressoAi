@@ -68,15 +68,18 @@ def gerar_recomendacao(usuario_id, modelo_knn, dados):
         else:
             df_alvo['distance_km'] = calcular_distancia_km(
                 user_lat, user_lon, df_alvo['venue.lat'], df_alvo['venue.lon']).fillna(float('inf'))
+
+        # Eventos sem coordenadas de venue (como eventos online) recebem passe livre de localidade
+        df_alvo['is_online'] = df_alvo['venue.lat'].isna()
         df_alvo['same_location'] = df_alvo['same_city'] | (
-            df_alvo['distance_km'] <= 50)
+            df_alvo['distance_km'] <= 50) | df_alvo['is_online']
         return df_alvo
 
     eventos_candidatos = aplicar_filtros_geograficos(eventos_candidatos)
 
     mascara_qualidade = (
         (eventos_candidatos['group_rating'] >= 4.0) &
-        (eventos_candidatos['venue_rating'] >= 3.5) &
+        ((eventos_candidatos['venue_rating'] >= 3.5) | (eventos_candidatos['venue_rating'].fillna(0) == 0)) &
         (eventos_candidatos['yes_rsvp_count'] >= 10)
     )
     eventos_qualificados = eventos_candidatos[mascara_qualidade]
@@ -92,7 +95,7 @@ def gerar_recomendacao(usuario_id, modelo_knn, dados):
         print("Nenhum evento próximo encontrado; usando fallback por popularidade.")
         df_populares = df_event_topics[
             (df_event_topics['group_rating'] >= 4.0) &
-            (df_event_topics['venue_rating'] >= 3.5) &
+            ((df_event_topics['venue_rating'] >= 3.5) | (df_event_topics['venue_rating'].fillna(0) == 0)) &
             (df_event_topics['yes_rsvp_count'] >= 10)
         ].copy()
         eventos_filtrados = aplicar_filtros_geograficos(df_populares)
@@ -109,11 +112,17 @@ def gerar_recomendacao(usuario_id, modelo_knn, dados):
 
     eventos_agrupados['group_bonus'] = eventos_agrupados['group_id'].isin(
         grupos_vizinhos).astype(int) * 3
+
+    eventos_agrupados['is_online'] = eventos_agrupados['venue.lat'].isna()
+    pontuacao_venue = eventos_agrupados['venue_rating'].replace(0, 3.5) * 2
+    penalidade_dist = eventos_agrupados['distance_km'].replace(
+        float('inf'), 0) / 20
+
     eventos_agrupados['score'] = (
-        eventos_agrupados['group_rating'] * 3 + eventos_agrupados['venue_rating'] * 2 +
+        eventos_agrupados['group_rating'] * 3 + pontuacao_venue +
         eventos_agrupados['yes_rsvp_count'] / 40 + eventos_agrupados['topic_match_count'] * 1.5 +
-        eventos_agrupados['same_city'] * 5 + eventos_agrupados['group_bonus'] -
-        eventos_agrupados['distance_km'] / 20
+        eventos_agrupados['same_city'] * 5 + eventos_agrupados['group_bonus'] +
+        (eventos_agrupados['is_online'].astype(int) * 5) - penalidade_dist
     )
 
     top_eventos = eventos_agrupados.sort_values(
