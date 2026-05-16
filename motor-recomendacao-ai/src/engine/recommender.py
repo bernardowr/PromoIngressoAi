@@ -30,18 +30,12 @@ def gerar_recomendacao(usuario_id, modelo_knn, dados):
     if usuario_id in vizinhos_ids:
         vizinhos_ids.remove(usuario_id)
 
-    topicos_usuario = matriz_original.loc[usuario_id]
-    topicos_usuario = topicos_usuario[topicos_usuario == 1].index.tolist()
-
-    topicos_vizinhos = []
-    for vizinho in vizinhos_ids:
-        topicos_vizinho = matriz_original.loc[vizinho]
-        topicos_vizinhos.extend(
-            topicos_vizinho[topicos_vizinho == 1].index.tolist())
-
-    contador_topicos = Counter(topicos_vizinhos)
-    topicos_relevantes = [topic for topic,
-                          count in contador_topicos.items() if count >= 2]
+    # Otimização: Vetorização com Pandas para extrair tópicos relevantes sem usar loops (for)
+    # Pega apenas as linhas dos vizinhos e soma a ocorrência de cada tópico
+    matriz_vizinhos = matriz_original.loc[vizinhos_ids]
+    contagem_topicos = matriz_vizinhos.sum(axis=0)
+    # Filtra tópicos que aparecem para 2 ou mais vizinhos
+    topicos_relevantes = contagem_topicos[contagem_topicos >= 2].index.tolist()
 
     grupos_vizinhos = df_members_clean[df_members_clean['member_id'].isin(
         vizinhos_ids)]['group_id'].unique()
@@ -99,6 +93,10 @@ def gerar_recomendacao(usuario_id, modelo_knn, dados):
             (df_event_topics['yes_rsvp_count'] >= 10)
         ].copy()
         eventos_filtrados = aplicar_filtros_geograficos(df_populares)
+
+    # Previne que a API quebre se o fallback também não retornar nenhum evento
+    if eventos_filtrados.empty:
+        return []
 
     eventos_agrupados = eventos_filtrados.groupby(
         ['event_id', 'event_name', 'group_id', 'venue_name',
