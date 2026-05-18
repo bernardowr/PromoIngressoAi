@@ -31,7 +31,7 @@ de ambiente)
 ```
 ### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/seu-usuario/PromoIngressoAi.git
+git clone https://github.com/bernardowr/PromoIngressoAi.git
 cd PromoIngressoAi
 ```
 
