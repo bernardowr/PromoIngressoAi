@@ -7,7 +7,7 @@ híbrido e multicontextual que sugere eventos aos usuários com base em similari
 interesses e viabilidade física ou digital.
 
 O motor utiliza o algoritmo de filtragem colaborativa **k-Nearest Neighbors (k-NN)** treinado
- com a métrica de  **Similaridade do Cosseno**, e aplica uma rigorosa lógica de pós-filtragem
+com a métrica de  **Similaridade do Cosseno**, e aplica uma rigorosa lógica de pós-filtragem
 contextual utilizando a fórmula de **Haversine** para calcular distâncias. 
 
 A base de dados utilizada é o dataset oficial do *Meetup* (`megelon/meetup`), baixada de
