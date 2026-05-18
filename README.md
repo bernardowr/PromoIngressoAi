@@ -1,16 +1,17 @@
 ```
 # PromoIngresso - Motor de Recomendação AI
 
-Este repositório contém a Inteligência Artificial e a API RESTful do projeto **PromoIngresso**. O sistema atua como
-o "cérebro" analítico da aplicação, operando um motor de recomendação híbrido e multicontextual que sugere eventos
-aos usuários com base em similaridade de interesses e viabilidade física ou digital.
+Este repositório contém a Inteligência Artificial e a API RESTful do projeto **PromoIngresso**.
+O sistema atua como o "cérebro" analítico da aplicação, operando um motor de recomendação
+híbrido e multicontextual que sugere eventos aos usuários com base em similaridade de
+interesses e viabilidade física ou digital.
 
-O motor utiliza o algoritmo de filtragem colaborativa **k-Nearest Neighbors (k-NN)** treinado com a métrica de
- **Similaridade do Cosseno**, e aplica uma rigorosa lógica de pós-filtragem contextual utilizando a fórmula de
- **Haversine** para calcular distâncias. 
+O motor utiliza o algoritmo de filtragem colaborativa **k-Nearest Neighbors (k-NN)** treinado
+ com a métrica de  **Similaridade do Cosseno**, e aplica uma rigorosa lógica de pós-filtragem
+contextual utilizando a fórmula de **Haversine** para calcular distâncias. 
 
-A base de dados utilizada é o dataset oficial do *Meetup* (`megelon/meetup`), baixada de forma automatizada via
-integração com a plataforma Kaggle.
+A base de dados utilizada é o dataset oficial do *Meetup* (`megelon/meetup`), baixada de
+forma automatizada via integração com a plataforma Kaggle.
 
 ---
 
@@ -20,7 +21,8 @@ integração com a plataforma Kaggle.
 * **Scikit-Learn** (Para o algoritmo de Machine Learning k-NN)
 * **Pandas & NumPy** (Para manipulação de dados e conversões trigonométricas)
 * **SciPy** (Para conversão da base de dados em Matrizes Esparsas otimizadas)
-* **Kagglehub & Python-dotenv** (Para download dinâmico do dataset e gerenciamento de variáveis de ambiente)
+* **Kagglehub & Python-dotenv** (Para download dinâmico do dataset e gerenciamento de variáveis
+de ambiente)
 
 ---
 
